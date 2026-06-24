@@ -1,0 +1,103 @@
+version: '3.8'
+
+x-superset-depends-on: &superset-depends-on
+  superset-db:
+    condition: service_healthy
+
+services:
+  # ---------------------------------------------
+  # Streamlit Dashboard
+  # ---------------------------------------------
+  streamlit-app:
+    build:
+      context: .
+      dockerfile: src/apps/streamlit/Dockerfile
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./src/apps/streamlit:/app/src/apps/streamlit
+      - ./data/warehouse:/app/data/warehouse
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+
+  # ---------------------------------------------
+  # PostgreSQL Metadata DB for Superset & Dagster
+  # ---------------------------------------------
+  superset-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: superset
+      POSTGRES_PASSWORD: superset_password
+      POSTGRES_DB: superset
+    volumes:
+      - superset_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U superset"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------------------------------------------
+  # Apache Superset
+  # ---------------------------------------------
+  superset:
+    build:
+      context: .
+      dockerfile: superset/Dockerfile
+    environment:
+      SUPERSET_SECRET_KEY: "your_secret_key_here_skytrax_analytics"
+      SQLALCHEMY_DATABASE_URI: "postgresql+psycopg2://superset:superset_password@superset-db:5432/superset"
+    ports:
+      - "8088:8088"
+    depends_on: *superset-depends-on
+    volumes:
+      - ./superset/superset_config.py:/app/pythonpath/superset_config.py
+      - ./data/warehouse:/app/data/warehouse
+
+  superset-init:
+    build:
+      context: .
+      dockerfile: superset/Dockerfile
+    command: >
+      /bin/sh -c "
+      superset fab create-admin --username admin --firstname Superset --lastname Admin --email admin@example.com --password admin &&
+      superset db upgrade &&
+      superset init
+      "
+    environment:
+      SUPERSET_SECRET_KEY: "your_secret_key_here_skytrax_analytics"
+      SQLALCHEMY_DATABASE_URI: "postgresql+psycopg2://superset:superset_password@superset-db:5432/superset"
+    depends_on: *superset-depends-on
+
+  # ---------------------------------------------
+  # Dagster & dbt
+  # ---------------------------------------------
+  dagster-webserver:
+    build:
+      context: .
+      dockerfile: orchestration/Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./orchestration:/opt/dagster/app
+      - ./dbt_project:/opt/dagster/dbt_project
+      - ./data/warehouse:/opt/dagster/data/warehouse
+    environment:
+      DAGSTER_HOME: /opt/dagster/dagster_home
+    command: dagster-webserver -h 0.0.0.0 -p 3000
+
+  dagster-daemon:
+    build:
+      context: .
+      dockerfile: orchestration/Dockerfile
+    volumes:
+      - ./orchestration:/opt/dagster/app
+      - ./dbt_project:/opt/dagster/dbt_project
+      - ./data/warehouse:/opt/dagster/data/warehouse
+    environment:
+      DAGSTER_HOME: /opt/dagster/dagster_home
+    command: dagster-daemon run
+
+volumes:
+  superset_db_data:
