@@ -124,10 +124,10 @@ df_ba_comp = con.execute("""
         avg(r.inflight_entertainment) as inflight_entertainment,
         avg(r.wifi_connectivity) as wifi_connectivity,
         avg(r.ground_service) as ground_service,
-        avg(r.value_for_money) as value_for_money
+        avg(r.value_for_money) as value_for_money,
+        count(*) as total_reviews
     from fact_airline_reviews r join dim_airlines a on r.airline_id = a.airline_id
-    where a.airline_name in ('Qatar Airways', 'Emirates', 'Singapore Airlines', 'Cathay Pacific Airways')
-    group by 1
+    group by 1 having count(*) > 500
 """).df()
 df_ba_comp.to_parquet(f'{out_dir}/mart_ba_competitors.parquet')
 
