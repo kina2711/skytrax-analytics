@@ -42,8 +42,8 @@ df4.to_parquet(f'{out_dir}/mart_q4_airport.parquet')
 
 # Q5: Temporal
 df5 = con.execute("""
-    select substring(date_flown_str, 1, 4) as flight_year, avg(seat_comfort + cabin_staff_service + value_for_money)/3.0 as overall_score, count(*) as total
-    from fact_airline_reviews where try_cast(substring(date_flown_str, 1, 4) as int) between 2010 and 2024 group by 1 order by flight_year
+    select right(date_flown_str, 4) as flight_year, avg(seat_comfort + cabin_staff_service + value_for_money)/3.0 as overall_score, count(*) as total
+    from fact_airline_reviews where try_cast(right(date_flown_str, 4) as int) between 2010 and 2024 group by 1 order by flight_year
 """).df()
 df5.to_parquet(f'{out_dir}/mart_q5_temporal.parquet')
 
