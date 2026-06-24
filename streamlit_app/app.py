@@ -5,10 +5,10 @@ import os
 
 st.set_page_config(page_title="Xóm Air - Aviation Reviews Analytics", layout="wide")
 
-st.title("✈️ Xóm Air - Aviation Customer Experience Intelligence")
-st.markdown("Dashboard phân tích Insight từ hơn 215,000 lượt reviews của hành khách toàn cầu.")
+st.title("Xóm Air - Aviation Customer Experience Intelligence")
+st.markdown("An analytical dashboard deriving insights from over 215,000 global passenger reviews.")
 
-# Đường dẫn tới thư mục data parquet
+# Directory for parquet files
 data_dir = os.path.join(os.path.dirname(__file__), 'data')
 
 @st.cache_data
@@ -16,40 +16,40 @@ def load_data(filename):
     return pd.read_parquet(os.path.join(data_dir, filename))
 
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "🏆 1. NPS Proxy (Top Airlines)", 
-    "🚨 2. Pain Points", 
-    "💺 3. Seat Analytics", 
-    "🏢 4. Airport Bottlenecks",
-    "📈 5. More Insights",
-    "🧠 6. Senior BA Deep Dives"
+    "1. NPS Proxy (Top Airlines)", 
+    "2. Pain Points", 
+    "3. Seat Analytics", 
+    "4. Airport Bottlenecks",
+    "5. Additional Insights",
+    "6. Deep Dive Analytics"
 ])
 
 with tab1:
-    st.header("1. Tỷ lệ giới thiệu (NPS Proxy)")
-    st.markdown("Hãng bay nào đang sở hữu tỷ lệ khách hàng 'Sẽ giới thiệu' cao nhất?")
+    st.header("1. Recommendation Rate (NPS Proxy)")
+    st.markdown("Identifying the airlines with the highest customer recommendation rates.")
     try:
         df1 = load_data('mart_q1_nps.parquet')
         fig1 = px.bar(df1, x='airline_name', y='recommendation_rate', 
-                      title='Top 20 Hãng bay có tỷ lệ Recommend cao nhất (>100 reviews)',
-                      labels={'recommendation_rate': 'Tỷ lệ Recommend (%)', 'airline_name': 'Hãng bay'})
+                      title='Top 20 Airlines by Recommendation Rate (>100 reviews)',
+                      labels={'recommendation_rate': 'Recommendation Rate (%)', 'airline_name': 'Airline Name'})
         st.plotly_chart(fig1, use_container_width=True)
     except Exception as e:
         st.error(f"Data not found: {e}")
 
 with tab2:
-    st.header("2. Bóc tách điểm đau (Airline Pain points)")
-    st.markdown("Tỷ lệ phần trăm đánh giá 1-2 sao cho từng dịch vụ.")
+    st.header("2. Airline Pain Points Analysis")
+    st.markdown("Percentage of 1-2 star ratings across different service categories.")
     try:
         df2 = load_data('mart_q2_painpoints.parquet')
         fig2 = px.bar(df2, x='service_type', y='bad_review_pct', color='service_type',
-                      title='Tỷ lệ nhận 1-2 sao theo từng hạng mục dịch vụ (Toàn ngành)',
-                      labels={'bad_review_pct': '% Đánh giá 1-2 sao', 'service_type': 'Dịch vụ'})
+                      title='Proportion of 1-2 Star Ratings by Service Category (Industry Average)',
+                      labels={'bad_review_pct': '1-2 Star Rating (%)', 'service_type': 'Service Category'})
         st.plotly_chart(fig2, use_container_width=True)
     except Exception as e:
         st.error(f"Data not found: {e}")
 
 with tab3:
-    st.header("3. Hạng ghế & Sự hài lòng")
+    st.header("3. Seat Class & Customer Satisfaction")
     try:
         df3 = load_data('mart_q3_seat.parquet')
         st.dataframe(df3)
@@ -57,21 +57,21 @@ with tab3:
         st.error(f"Data not found: {e}")
 
 with tab4:
-    st.header("4. Bắt bệnh cảng hàng không")
-    st.markdown("Sân bay nào bị phàn nàn nhiều nhất về khâu xếp hàng và vệ sinh?")
+    st.header("4. Airport Bottlenecks")
+    st.markdown("Identifying airports with the lowest queuing and cleanliness scores.")
     try:
         df4 = load_data('mart_q4_airport.parquet')
         fig4 = px.scatter(df4, x='avg_queuing', y='avg_cleanliness', size='total_reviews', color='airport_name',
-                          title='Phân tích Xếp hàng vs Vệ sinh (Càng thấp càng tệ)',
-                          labels={'avg_queuing': 'Điểm xếp hàng (Queuing)', 'avg_cleanliness': 'Điểm vệ sinh (Cleanliness)'})
+                          title='Queuing vs. Cleanliness Analysis (Lower is Worse)',
+                          labels={'avg_queuing': 'Queuing Score', 'avg_cleanliness': 'Cleanliness Score'})
         st.plotly_chart(fig4, use_container_width=True)
     except Exception as e:
         st.error(f"Data not found: {e}")
 
 with tab5:
-    st.header("5-10. Các Insight khác")
+    st.header("5. Additional Insights")
     
-    st.subheader("5. Xu hướng hài lòng theo thời gian")
+    st.subheader("5.1. Satisfaction Trends Over Time")
     try:
         df5 = load_data('mart_q5_temporal.parquet')
         if not df5.empty:
@@ -79,23 +79,23 @@ with tab5:
     except Exception as e:
         st.error(f"Data not found: {e}")
 
-    st.subheader("6. Máy bay bị phàn nàn nhiều nhất về độ thoải mái")
+    st.subheader("5.2. Aircraft with Lowest Seat Comfort")
     try:
         df6 = load_data('mart_q6_aircraft.parquet')
-        fig6 = px.bar(df6, x='avg_seat_comfort', y='aircraft_type', orientation='h', title='Top 15 Máy bay có điểm Seat Comfort thấp nhất')
+        fig6 = px.bar(df6, x='avg_seat_comfort', y='aircraft_type', orientation='h', title='Top 15 Aircraft Types by Lowest Seat Comfort')
         st.plotly_chart(fig6, use_container_width=True)
     except Exception as e:
         st.error(f"Data not found: {e}")
 
-    st.subheader("7. Loại hành khách nào dễ tính nhất?")
+    st.subheader("5.3. Value for Money by Traveller Type")
     try:
         df7 = load_data('mart_q7_traveller.parquet')
-        fig7 = px.bar(df7, x='traveller_type', y='avg_value', title='Điểm trung bình Value For Money theo loại hành khách')
+        fig7 = px.bar(df7, x='traveller_type', y='avg_value', title='Average Value For Money by Traveller Type')
         st.plotly_chart(fig7, use_container_width=True)
     except Exception as e:
         st.error(f"Data not found: {e}")
     
-    st.subheader("8. Verified vs Unverified Reviews")
+    st.subheader("5.4. Verified vs. Unverified Reviews")
     try:
         df8 = load_data('mart_q8_verified.parquet')
         df8['is_verified_label'] = df8['is_verified'].map({1: 'Verified', 0: 'Not Verified'})
@@ -103,54 +103,54 @@ with tab5:
     except Exception as e:
         st.error(f"Data not found: {e}")
 
-    st.subheader("9. Phòng chờ (Lounge) nào xịn nhất?")
+    st.subheader("5.5. Premium Lounge Analysis")
     try:
         df9 = load_data('mart_q9_lounge.parquet')
-        fig9 = px.scatter(df9, x='avg_comfort', y='avg_cleanliness', color='lounge_airline', size='total_reviews', title='Phân tích Phòng chờ: Độ thoải mái vs Vệ sinh')
+        fig9 = px.scatter(df9, x='avg_comfort', y='avg_cleanliness', color='lounge_airline', size='total_reviews', title='Lounge Analysis: Comfort vs. Cleanliness')
         st.plotly_chart(fig9, use_container_width=True)
     except Exception as e:
         st.error(f"Data not found: {e}")
 
-    st.subheader("10. Quốc gia khắt khe nhất")
+    st.subheader("5.6. Strictest Demographics")
     try:
         df10 = load_data('mart_q10_demographics.parquet')
-        fig10 = px.bar(df10, x='country', y='avg_score', title='Top 10 Quốc gia chấm điểm Value for Money thấp nhất (>500 reviews)')
+        fig10 = px.bar(df10, x='country', y='avg_score', title='Top 10 Countries with Lowest Value for Money Scores (>500 reviews)')
         st.plotly_chart(fig10, use_container_width=True)
     except Exception as e:
         st.error(f"Data not found: {e}")
 
 with tab6:
-    st.header("🧠 Phân tích chuyên sâu (Senior BA)")
+    st.header("6. Deep Dive Analytics")
     st.markdown("---")
     
-    st.subheader("1. Động lực cốt lõi (Key Drivers of Recommendation)")
-    st.markdown("Yếu tố nào quyết định đến sự hài lòng và sẵn sàng giới thiệu của khách hàng?")
+    st.subheader("6.1. Key Drivers of Recommendation")
+    st.markdown("Analyzing which service factors have the strongest correlation with passenger recommendation rates.")
     try:
         df_ba1 = load_data('mart_ba_drivers.parquet')
-        df_melted = df_ba1.melt(var_name='Dịch vụ', value_name='Độ tương quan (Correlation)')
-        fig_ba1 = px.bar(df_melted, x='Độ tương quan (Correlation)', y='Dịch vụ', orientation='h', title='Mức độ ảnh hưởng của các dịch vụ đến Tỷ lệ Recommend')
+        df_melted = df_ba1.melt(var_name='Service Category', value_name='Correlation Coefficient')
+        fig_ba1 = px.bar(df_melted, x='Correlation Coefficient', y='Service Category', orientation='h', title='Impact of Service Categories on Recommendation Rates')
         st.plotly_chart(fig_ba1, use_container_width=True)
-        st.info("💡 **Insight:** Value for Money và Cabin Staff Service là 2 yếu tố quyết định lớn nhất. Hãng hàng không nên tập trung tối ưu trải nghiệm phục vụ của nhân viên thay vì chỉ tập trung vào đồ ăn hay wifi.")
+        st.markdown("**Observation:** Value for Money and Cabin Staff Service exhibit the highest correlation with customer recommendation. Airlines should prioritize crew training and service quality over secondary amenities like Wi-Fi.")
     except Exception as e:
         st.error(f"Data not found: {e}")
 
     st.markdown("---")
-    st.subheader("2. Tác động của Đại dịch (Pre vs Post-COVID)")
-    st.markdown("Các hãng hàng không có đang cắt giảm chi phí dịch vụ sau đại dịch?")
+    st.subheader("6.2. Pre vs. Post-COVID Impact")
+    st.markdown("Evaluating service quality trends to identify potential cost-cutting measures post-pandemic.")
     try:
         df_ba2 = load_data('mart_ba_covid_trend.parquet')
         df_ba2 = df_ba2[df_ba2['flight_year'] <= 2024]
         fig_ba2 = px.line(df_ba2, x='flight_year', y=['avg_food', 'avg_staff', 'avg_seat'], 
-                          labels={'value': 'Điểm trung bình (1-5)', 'flight_year': 'Năm', 'variable': 'Dịch vụ'},
-                          title='Xu hướng Chất lượng Dịch vụ (2018 - 2024)')
+                          labels={'value': 'Average Score (1-5)', 'flight_year': 'Year', 'variable': 'Service Category'},
+                          title='Service Quality Trends (2018 - 2024)')
         st.plotly_chart(fig_ba2, use_container_width=True)
-        st.info("💡 **Insight:** Điểm Food & Beverages giảm rõ rệt sau 2020, phản ánh làn sóng cắt giảm chi phí suất ăn của các hãng hàng không. Trong khi đó, Seat Comfort hầu như không thay đổi.")
+        st.markdown("**Observation:** Food & Beverages scores show a significant decline post-2020, likely indicating industry-wide cost-cutting measures in catering. In contrast, Seat Comfort remains relatively stable.")
     except Exception as e:
         st.error(f"Data not found: {e}")
 
     st.markdown("---")
-    st.subheader("3. Benchmark Đối thủ: Trận chiến của các Ông lớn")
-    st.markdown("So sánh điểm chạm dịch vụ giữa Qatar Airways, Emirates, Singapore Airlines và Cathay Pacific.")
+    st.subheader("6.3. Competitor Benchmarking")
+    st.markdown("Comparing service touchpoints among Qatar Airways, Emirates, Singapore Airlines, and Cathay Pacific.")
     try:
         df_ba3 = load_data('mart_ba_competitors.parquet')
         import plotly.graph_objects as go
