@@ -84,3 +84,51 @@ df10 = con.execute("""
 df10.to_parquet(f'{out_dir}/mart_q10_demographics.parquet')
 
 print("Done! Data exported to streamlit_app/data/")
+
+print("Exporting BA Deep Dive Data Marts...")
+
+# BA1: Key Drivers Analysis (Correlation with Recommended)
+df_ba_drivers = con.execute("""
+    select 
+        corr(seat_comfort, is_recommended) as seat_comfort_corr,
+        corr(cabin_staff_service, is_recommended) as cabin_staff_corr,
+        corr(food_beverages, is_recommended) as food_beverages_corr,
+        corr(inflight_entertainment, is_recommended) as inflight_ent_corr,
+        corr(wifi_connectivity, is_recommended) as wifi_corr,
+        corr(ground_service, is_recommended) as ground_service_corr,
+        corr(value_for_money, is_recommended) as value_for_money_corr
+    from fact_airline_reviews
+""").df()
+df_ba_drivers.to_parquet(f'{out_dir}/mart_ba_drivers.parquet')
+
+# BA2: COVID Trend (Cost-cutting impact)
+df_ba_covid = con.execute("""
+    select 
+        try_cast(right(date_flown_str, 4) as int) as flight_year,
+        avg(food_beverages) as avg_food,
+        avg(cabin_staff_service) as avg_staff,
+        avg(seat_comfort) as avg_seat
+    from fact_airline_reviews
+    where try_cast(right(date_flown_str, 4) as int) between 2018 and 2024
+    group by 1 order by flight_year
+""").df()
+df_ba_covid.to_parquet(f'{out_dir}/mart_ba_covid_trend.parquet')
+
+# BA3: Competitor Benchmarking (Top Tier Airlines)
+df_ba_comp = con.execute("""
+    select 
+        a.airline_name,
+        avg(r.seat_comfort) as seat_comfort,
+        avg(r.cabin_staff_service) as cabin_staff_service,
+        avg(r.food_beverages) as food_beverages,
+        avg(r.inflight_entertainment) as inflight_entertainment,
+        avg(r.wifi_connectivity) as wifi_connectivity,
+        avg(r.ground_service) as ground_service,
+        avg(r.value_for_money) as value_for_money
+    from fact_airline_reviews r join dim_airlines a on r.airline_id = a.airline_id
+    where a.airline_name in ('Qatar Airways', 'Emirates', 'Singapore Airlines', 'Cathay Pacific Airways')
+    group by 1
+""").df()
+df_ba_comp.to_parquet(f'{out_dir}/mart_ba_competitors.parquet')
+
+print("BA Deep Dives generated successfully!")
