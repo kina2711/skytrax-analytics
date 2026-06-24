@@ -6,6 +6,9 @@ This repository contains the end-to-end data engineering and analytics infrastru
 
 ## 1. Project Context & Business Value
 
+![Executive BI Dashboard Preview](assets/dashboard_preview.png)
+
+
 ### 1.1. The Dataset
 The core dataset consists of over **215,000 verified passenger reviews** scraped from Skytrax. The data captures comprehensive customer feedback across multiple dimensions:
 - **Demographics & Trip Info:** Airline, Aircraft Type, Seat Type, Route, Date Flown.
@@ -30,6 +33,9 @@ To move beyond ad-hoc scripts and fragmented CSV analysis, we engineered a scala
 ---
 
 ## 2. Architecture & Data Flow
+
+![MDS Architecture Diagram](assets/architecture_diagram.png)
+
 
 The pipeline follows a standard **E-L-T (Extract, Load, Transform)** paradigm:
 
