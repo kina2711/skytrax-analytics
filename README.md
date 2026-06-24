@@ -1,59 +1,59 @@
 # Skytrax Analytics Platform
 
-An end-to-end Modern Data Stack (MDS) implementation for analyzing global aviation passenger reviews. This repository contains data extraction, transformation, orchestration, and visualization components architected to FAANG-style engineering standards.
+This repository contains the data engineering and analytics infrastructure for processing and visualizing global aviation passenger reviews. The system is built on a containerized Modern Data Stack architecture, designed for scalable extraction, transformation, orchestration, and reporting.
 
-## Architecture Overview
+## Architecture
 
-The platform leverages the following core components:
-- **DuckDB**: Embedded analytical database serving as the core data warehouse.
-- **dbt**: Data transformation and modeling layer.
-- **Dagster**: Software-defined asset orchestrator for ELT workflows.
-- **Apache Superset**: Enterprise-grade business intelligence platform.
-- **Streamlit**: Lightweight, interactive executive dashboard.
-- **Docker & Docker Compose**: Containerization and local infrastructure orchestration.
-- **GitHub Actions**: Automated CI/CD pipelines.
+The platform integrates the following core systems:
+- **DuckDB**: In-process SQL OLAP database managing the data warehouse.
+- **dbt**: Data transformation, modeling, and testing layer.
+- **Dagster**: Software-defined asset orchestrator governing the ELT pipelines.
+- **Apache Superset**: Business intelligence and ad-hoc data exploration.
+- **Streamlit**: Application layer for the executive metrics dashboard.
+- **Docker**: Containerization runtime managing local microservices.
+- **GitHub Actions**: Automated Continuous Integration (CI) workflows.
 
-## Project Structure
+## Directory Layout
 
 ```text
 .
-├── .github/workflows/           # CI/CD automation
-├── data/                        # Local data storage (raw and warehouse)
-├── dbt_project/                 # dbt models, macros, and configuration
-├── orchestration/               # Dagster definitions and workspace
-├── scripts/                     # Standalone Python scripts for ingestion/export
-├── src/apps/streamlit/          # Streamlit dashboard application
-├── superset/                    # Superset Docker configuration and init
-└── tests/                       # Unit and integration test suites
+├── .github/workflows/           # CI/CD pipeline definitions
+├── data/                        # Persistent storage (raw ingestion and warehouse)
+├── dbt_project/                 # dbt models, macros, and test configurations
+├── orchestration/               # Dagster workspaces, assets, and daemon configurations
+├── scripts/                     # Utility scripts for standalone operations
+├── src/apps/streamlit/          # Streamlit dashboard application source
+├── superset/                    # Superset custom Dockerfile and initialization
+└── tests/                       # Automated unit and integration test suites
 ```
 
-## Setup & Installation
+## Local Development
 
 ### Prerequisites
 - Docker & Docker Compose
-- `make` (optional but recommended)
+- `make` utility
 
-### Quick Start
-1. **Initialize infrastructure**:
+### Deployment
+1. **Initialize the stack**:
    ```bash
    make up
    ```
-2. **Access the services**:
-   - Streamlit Dashboard: `http://localhost:8501`
-   - Apache Superset: `http://localhost:8088` (Default credentials: admin/admin)
+2. **Service Endpoints**:
+   - Streamlit Application: `http://localhost:8501`
+   - Apache Superset: `http://localhost:8088` (Default credentials: `admin` / `admin`)
    - Dagster Webserver: `http://localhost:3000`
 
 ### Testing
-To run the automated test suite locally:
+Execute the automated test suite locally:
 ```bash
 make test
 ```
 
-## CI/CD Pipeline
-Continuous Integration is configured via GitHub Actions. On every push to `main` or Pull Request, the pipeline executes:
-1. Python unit tests via `pytest`.
-2. Pipeline integration tests against an ephemeral DuckDB database.
-3. Build verification for all Docker containers.
+## Continuous Integration
+Automated verification is managed via GitHub Actions. Push and Pull Request events to the `main` branch trigger:
+1. Python unit testing (`pytest`).
+2. Integration testing against ephemeral DuckDB instances.
+3. Docker image build validation.
 
 ## License
 Proprietary. All rights reserved.
