@@ -1,0 +1,30 @@
+{
+  "correlations": {
+    "staff": 0.73,
+    "vfm": 0.85,
+    "wifi": 0.66
+  },
+  "trends": {
+    "food_2019": 2.49,
+    "food_2023": 2.23,
+    "seat_2019": 2.48,
+    "seat_2023": 2.29
+  },
+  "tier1": {
+    "Emirates": {
+      "staff": 3.09,
+      "ent": 3.87,
+      "vfm": 3.06
+    },
+    "Singapore Airlines": {
+      "staff": 4.07,
+      "ent": 3.92,
+      "vfm": 3.59
+    },
+    "Qatar Airways": {
+      "staff": 4.23,
+      "ent": 4.03,
+      "vfm": 3.86
+    }
+  }
+}

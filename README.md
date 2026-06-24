@@ -102,6 +102,8 @@ The pipeline follows a standard **E-L-T (Extract, Load, Transform)** paradigm:
 Spin up the entire containerized stack in detached mode:
 ```bash
 make up
+# OR (if 'make' is not installed, e.g., on Windows)
+docker compose up -d
 ```
 
 ### Access Service Endpoints
@@ -114,6 +116,8 @@ Once the containers are healthy, you can access the following services:
 To stop the services and clean up dangling volumes/cache:
 ```bash
 make clean
+# OR (if 'make' is not installed)
+docker compose down -v
 ```
 
 ---
