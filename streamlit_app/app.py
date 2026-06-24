@@ -51,7 +51,7 @@ with tab3:
     st.header("3. Hạng ghế & Sự hài lòng")
     try:
         df3 = load_data('mart_q3_seat.parquet')
-        st.dataframe(df3, use_container_width=True)
+        st.dataframe(df3)
     except Exception as e:
         st.error(f"Data not found: {e}")
 
@@ -77,12 +77,36 @@ with tab5:
             st.line_chart(df5.set_index('flight_year')['overall_score'])
     except Exception as e:
         st.error(f"Data not found: {e}")
+
+    st.subheader("6. Máy bay bị phàn nàn nhiều nhất về độ thoải mái")
+    try:
+        df6 = load_data('mart_q6_aircraft.parquet')
+        fig6 = px.bar(df6, x='avg_seat_comfort', y='aircraft_type', orientation='h', title='Top 15 Máy bay có điểm Seat Comfort thấp nhất')
+        st.plotly_chart(fig6, use_container_width=True)
+    except Exception as e:
+        st.error(f"Data not found: {e}")
+
+    st.subheader("7. Loại hành khách nào dễ tính nhất?")
+    try:
+        df7 = load_data('mart_q7_traveller.parquet')
+        fig7 = px.bar(df7, x='traveller_type', y='avg_value', title='Điểm trung bình Value For Money theo loại hành khách')
+        st.plotly_chart(fig7, use_container_width=True)
+    except Exception as e:
+        st.error(f"Data not found: {e}")
     
     st.subheader("8. Verified vs Unverified Reviews")
     try:
         df8 = load_data('mart_q8_verified.parquet')
         df8['is_verified_label'] = df8['is_verified'].map({1: 'Verified', 0: 'Not Verified'})
-        st.dataframe(df8, use_container_width=True)
+        st.dataframe(df8)
+    except Exception as e:
+        st.error(f"Data not found: {e}")
+
+    st.subheader("9. Phòng chờ (Lounge) nào xịn nhất?")
+    try:
+        df9 = load_data('mart_q9_lounge.parquet')
+        fig9 = px.scatter(df9, x='avg_comfort', y='avg_cleanliness', color='lounge_airline', size='total_reviews', title='Phân tích Phòng chờ: Độ thoải mái vs Vệ sinh')
+        st.plotly_chart(fig9, use_container_width=True)
     except Exception as e:
         st.error(f"Data not found: {e}")
 

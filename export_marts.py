@@ -47,12 +47,34 @@ df5 = con.execute("""
 """).df()
 df5.to_parquet(f'{out_dir}/mart_q5_temporal.parquet')
 
+# Q6: Aircraft worst seat comfort
+df6 = con.execute("""
+    select aircraft_type, avg(seat_comfort) as avg_seat_comfort, count(*) as total_reviews
+    from fact_airline_reviews where aircraft_type is not null group by 1 having count(*) > 50 order by avg_seat_comfort asc limit 15
+""").df()
+df6.to_parquet(f'{out_dir}/mart_q6_aircraft.parquet')
+
+# Q7: Traveller Type
+df7 = con.execute("""
+    select type_of_traveller as traveller_type, avg(value_for_money) as avg_value, avg(seat_comfort) as avg_comfort, count(*) as total_reviews
+    from fact_airline_reviews where type_of_traveller is not null group by 1 order by avg_value desc
+""").df()
+df7.to_parquet(f'{out_dir}/mart_q7_traveller.parquet')
+
 # Q8: Verified
 df8 = con.execute("""
     select is_verified, avg(value_for_money) as avg_value, avg(seat_comfort) as avg_comfort, count(*) as reviews_count
     from fact_airline_reviews group by 1
 """).df()
 df8.to_parquet(f'{out_dir}/mart_q8_verified.parquet')
+
+# Q9: Lounge Reviews
+df9 = con.execute("""
+    select a.airline_name as lounge_airline, avg(r.comfort) as avg_comfort, avg(r.cleanliness) as avg_cleanliness, count(*) as total_reviews
+    from fact_lounge_reviews r join dim_airlines a on r.airline_id = a.airline_id
+    group by 1 having count(*) > 30 order by avg_comfort desc limit 15
+""").df()
+df9.to_parquet(f'{out_dir}/mart_q9_lounge.parquet')
 
 # Q10: Demographics
 df10 = con.execute("""
