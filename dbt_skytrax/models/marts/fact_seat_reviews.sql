@@ -1,0 +1,27 @@
+select
+    r.review_id,
+    a.airline_id,
+    r.customer_name,
+    r.country,
+    r.review_body,
+    r.seat_type,
+    r.aircraft_type,
+    r.seat_layout,
+    r.date_flown_str,
+    r.type_of_traveller,
+    r.seat_legroom,
+    r.seat_recline,
+    r.seat_width,
+    r.aisle_space,
+    r.viewing_tv_screen,
+    r.power_supply,
+    r.seat_storage,
+    r.sleep_comfort,
+    r.sitting_comfort,
+    r.seat_bed_width,
+    r.seat_bed_length,
+    r.seat_privacy,
+    r.is_recommended,
+    r.is_verified
+from {{ ref('stg_seat_reviews') }} r
+left join {{ ref('dim_airlines') }} a on r.airline_name = a.airline_name

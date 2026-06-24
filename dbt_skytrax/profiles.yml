@@ -1,0 +1,9 @@
+skytrax_profile:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: '../skytrax_warehouse.duckdb'
+      extensions:
+        - httpfs
+        - parquet
